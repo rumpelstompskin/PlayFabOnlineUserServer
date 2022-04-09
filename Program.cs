@@ -133,6 +133,15 @@ namespace Server
             SendDataTo(_sendToUser, _buffer.ToArray());
             _buffer.Dispose();
         }
+
+        public static void OnlinePlayerCheck(int _sendToUser, bool _answer)
+        {
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteInt((int)ServerPackets.HandShake);
+
+            _buffer.WriteBool(_answer);
+            
+        }
     }
 
     class ServerHandle
@@ -164,6 +173,10 @@ namespace Server
             Console.WriteLine(
                 $"Connection from {Globals.clients[_userID].socket.Client.RemoteEndPoint}" +
                 $" was successful. Username: {_username}. PlayFab ID: {_playFabID}. Network ID: {_playFabNetworkID}");
+
+            Globals.clients[_userID].playFabDisplayName = _username;
+            Globals.clients[_userID].playFabId = _playFabID;
+            Globals.clients[_userID].playFabNetworkId = _playFabNetworkID;
         }
 
         public static void HandleData(int _userID, byte[] _data)
