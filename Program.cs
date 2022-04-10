@@ -135,19 +135,33 @@ namespace Server
             _buffer.Dispose();
         }
 
-        public static void ReturnOnlinePlayer(int _sendToUser, bool _answer, string _friendPlayFabID, string _friendPlayFabNetworkID)
+        public static void ServerReturnUserStatus(int _sendToUser, bool _isResponse, string _friendPlayFabID)
         {
+            ByteBuffer _buffer = Globals.GetUserOnlineStatusBufferByID(_friendPlayFabID);
+
+            SendDataTo(_sendToUser, _buffer.ToArray());
+
+            _buffer.Dispose();
+
+            /*
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteInt((int)ServerPackets.HandShake);
 
-            _buffer.WriteBool(_answer);
+            _buffer.WriteBool(_isResponse); // This tells the client we are returning data regarding a player to them.
+
+            if(Globals.GetUserOnlineStatus(_friendPlayFabID) == true) // Requested user status update return positive.
+            {
+                _buffer.WriteBool(true);
+                _buffer.WriteString(_friendPlayFabNetworkID);
+            }
+
             //_buffer.WriteInt(_sendToUser);
             _buffer.WriteString(_friendPlayFabID);
-            _buffer.WriteString(_friendPlayFabNetworkID);
+            
 
             SendDataTo(_sendToUser, _buffer.ToArray());
             _buffer.Dispose();
-            
+            */
         }
     }
 
@@ -173,17 +187,17 @@ namespace Server
         public static void HandShakeReceived(int _userID, byte[] _data)
         {
             ByteBuffer _buffer = new ByteBuffer();
-            _buffer.WriteBytes(_data);
+            _buffer.WriteBytes(_data); // Taking incoming data and converting it into readable format.
             _buffer.ReadInt();
             
             if(_buffer.ReadBool() == true) // When bool is true, the client is requesting data from another user.
             {
-                Console.WriteLine("Returned true, requesting client information");
+                //Console.WriteLine("Returned true, requesting client information");
                 string _friendPlayFabID = _buffer.ReadString();
 
                 Console.WriteLine($"Requesting information about user: {_friendPlayFabID}");
                 // Call method to gather information with friend PlayFabID
-                ServerSend.ReturnOnlinePlayer(_userID, true, "Friend PlayFab ID PlaceHolder", "Friend PlayFab NetworkID PlaceHolder");
+                ServerSend.ServerReturnUserStatus(_userID, true, _friendPlayFabID);
                 _buffer.Dispose();
                 return;
             }
