@@ -41,10 +41,13 @@ Rumpelstompskin
 https://www.metagamez.net
 
 ## Version History
-
+* 0.3
+    * Added UserInfoRequest Packet
+    * Added new packet to InitializePacket
+    * Added method to receive and return UserInfoRequest packets.
+    * Added more comments to code.
 * 0.2
     * Prototyping data exchange functionality
-    * See [commit change]() or See [release history]()
 * 0.1
     * Initial Release
 

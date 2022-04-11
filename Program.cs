@@ -7,12 +7,13 @@ namespace Server
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] args) // Program's initial method call.
         {
             Globals.serverIsRunning = true;
 
             Thread _serviceThread = new Thread(new ThreadStart(ServiceLogicThread));
             _serviceThread.Start();
+
             General.StartServer();
         }
 
@@ -53,7 +54,7 @@ namespace Server
 
         public static void InitNetwork()
         {
-            Console.WriteLine($"Starting server on port: {port}");
+            Console.WriteLine($"Starting server on port: {port}"); // TODO: Evaluate if this needs to be written in a log. Probably not.
             ServerHandle.InitPackets();
             socket = new TcpListener(IPAddress.Any, port);
             socket.Start();
@@ -88,9 +89,9 @@ namespace Server
     {
         public static void StartServer()
         {
-            InitServerData();
-            ServerTCP.InitNetwork();
-            Console.WriteLine("Server started");
+            InitServerData(); // Populates our dictionary
+            ServerTCP.InitNetwork(); // Initialize the network
+            Console.WriteLine("Server started"); // TODO: Change to a log entry
         }
 
         private static void InitServerData()
@@ -173,19 +174,7 @@ namespace Server
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteBytes(_data); // Taking incoming data and converting it into readable format.
             _buffer.ReadInt();
-            /*
-            if(_buffer.ReadBool() == true) // When bool is true, the client is requesting data from another user.
-            {
-                //Console.WriteLine("Returned true, requesting client information");
-                string _friendPlayFabID = _buffer.ReadString();
 
-                Console.WriteLine($"Requesting information about user: {_friendPlayFabID}");
-                // Call method to gather information with friend PlayFabID
-                ServerSend.ServerReturnUserStatus(_userID, true, _friendPlayFabID);
-                _buffer.Dispose();
-                return;
-            }
-            */
             string _username = _buffer.ReadString();
             string _playFabID = _buffer.ReadString();
             string _playFabNetworkID = _buffer.ReadString();

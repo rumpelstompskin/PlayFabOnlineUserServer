@@ -11,29 +11,14 @@ namespace Server
         public static bool serverIsRunning = false;
         public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
 
-        /*
-        public static bool GetUserOnlineStatus(string _playFabID)
+        public static ByteBuffer GetUserOnlineStatusBufferByID(string _friendPlayFabID) // TODO: Consider moving this logic out of here.
         {
-            bool status = false;
-
-            for (int i = 0; i < clients.Count; i++)
-            {
-                if(clients[i].playFabId == _playFabID)
-                {
-                    status = true;
-                }
-            }
-
-            return status;
-        }
-        */
-        public static ByteBuffer GetUserOnlineStatusBufferByID(string _friendPlayFabID)
-        {
-            Console.WriteLine("Getting Users Online Status...");
+            //Console.WriteLine("Getting Users Online Status..."); // Debug
             bool _status = false;
             string _playFabNetworkID = "";
             ByteBuffer _buffer = new ByteBuffer();
-            for (int i = 1; i < clients.Count; i++)
+
+            for (int i = 1; i < clients.Count; i++) // Try to figure out a more efficient way of doing this.
             {
                 if (clients[i].playFabId == _friendPlayFabID)
                 {
@@ -42,8 +27,7 @@ namespace Server
                     break;
                 }
             }
-            _buffer.WriteInt((int)ServerPackets.UserInfoRequest);
-            //_buffer.WriteBool(true); // This tells the client it's a response. TODO: Change into an int to be able to filter more responses.
+            _buffer.WriteInt((int)ServerPackets.UserInfoRequest); // What type of packet we are transmitting to the user.
             _buffer.WriteBool(_status); // Tells our client the status of the user.
             _buffer.WriteString(_friendPlayFabID);
             if (_status == true) // If the user is online, pass along the user's network ID. TODO: Change into a request for communication to the user.
