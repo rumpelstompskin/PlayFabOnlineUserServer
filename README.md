@@ -1,6 +1,6 @@
 # PlayFab Friends List Online Status Server
 
-The server's purpose is to keep track of users online status while they play your game.
+Keep track of your users online status while they play your titles.
 
 ## Description
 
