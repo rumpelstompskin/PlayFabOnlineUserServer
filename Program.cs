@@ -16,6 +16,9 @@ namespace Server
             General.StartServer();
         }
 
+        /// <summary>
+        /// Keeps the service alive.
+        /// </summary>
         private static void ServiceLogicThread()
         {
             Console.WriteLine
@@ -112,7 +115,7 @@ namespace Server
                     _buffer.WriteBytes(_data);
 
                     Globals.clients[_userID].stream.BeginWrite(_buffer.ToArray(), 0,
-                        _buffer.ToArray().Length, null, null);
+                        _buffer.ToArray().Length, f => { Console.WriteLine("Sending Data..."); }, null);
                     _buffer.Dispose();
                 }
             }
@@ -127,7 +130,7 @@ namespace Server
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteInt((int)ServerPackets.HandShake);
 
-            _buffer.WriteBool(false);
+            //_buffer.WriteBool(false);
             _buffer.WriteString(_msg);
             _buffer.WriteInt(_sendToUser);
 
@@ -135,33 +138,13 @@ namespace Server
             _buffer.Dispose();
         }
 
-        public static void ServerReturnUserStatus(int _sendToUser, bool _isResponse, string _friendPlayFabID)
+        public static void ServerReturnUserStatus(int _sendToUser, string _friendPlayFabID)
         {
             ByteBuffer _buffer = Globals.GetUserOnlineStatusBufferByID(_friendPlayFabID);
 
             SendDataTo(_sendToUser, _buffer.ToArray());
 
             _buffer.Dispose();
-
-            /*
-            ByteBuffer _buffer = new ByteBuffer();
-            _buffer.WriteInt((int)ServerPackets.HandShake);
-
-            _buffer.WriteBool(_isResponse); // This tells the client we are returning data regarding a player to them.
-
-            if(Globals.GetUserOnlineStatus(_friendPlayFabID) == true) // Requested user status update return positive.
-            {
-                _buffer.WriteBool(true);
-                _buffer.WriteString(_friendPlayFabNetworkID);
-            }
-
-            //_buffer.WriteInt(_sendToUser);
-            _buffer.WriteString(_friendPlayFabID);
-            
-
-            SendDataTo(_sendToUser, _buffer.ToArray());
-            _buffer.Dispose();
-            */
         }
     }
 
@@ -175,7 +158,8 @@ namespace Server
             Console.WriteLine("Initializing packets...");
             packets = new Dictionary<int, Packet>()
             {
-                {(int)ClientPackets.HandShakeReceived, HandShakeReceived }
+                {(int)ClientPackets.HandShakeReceived, HandShakeReceived },
+                {(int)ClientPackets.UserInfoRequestReceived,  UserInfoRequestReceived },
             };
         }
         /// <summary>
@@ -189,7 +173,7 @@ namespace Server
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteBytes(_data); // Taking incoming data and converting it into readable format.
             _buffer.ReadInt();
-            
+            /*
             if(_buffer.ReadBool() == true) // When bool is true, the client is requesting data from another user.
             {
                 //Console.WriteLine("Returned true, requesting client information");
@@ -201,7 +185,7 @@ namespace Server
                 _buffer.Dispose();
                 return;
             }
-
+            */
             string _username = _buffer.ReadString();
             string _playFabID = _buffer.ReadString();
             string _playFabNetworkID = _buffer.ReadString();
@@ -215,6 +199,21 @@ namespace Server
             Globals.clients[_userID].playFabDisplayName = _username;
             Globals.clients[_userID].playFabId = _playFabID;
             Globals.clients[_userID].playFabNetworkId = _playFabNetworkID;
+        }
+
+        public static void UserInfoRequestReceived(int _userID, byte[] _data)
+        {
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteBytes(_data); // Taking incoming data and converting it into readable format.
+            _buffer.ReadInt();
+
+            Console.WriteLine("Returned true, requesting client information");
+            string _friendPlayFabID = _buffer.ReadString();
+
+            Console.WriteLine($"Requesting information about user: {_friendPlayFabID}");
+            // Call method to gather information with friend PlayFabID
+            ServerSend.ServerReturnUserStatus(_userID, _friendPlayFabID);
+            _buffer.Dispose();
         }
 
         public static void HandleData(int _userID, byte[] _data)
@@ -280,7 +279,7 @@ namespace Server
             int _packetID = _buffer.ReadInt();
             _buffer.Dispose();
 
-            if(packets.TryGetValue(_userID, out Packet? _packet))
+            if(packets.TryGetValue(_packetID, out Packet? _packet))
             {
                 _packet.Invoke(_userID, _data);
             }

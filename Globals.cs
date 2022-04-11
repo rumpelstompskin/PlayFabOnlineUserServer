@@ -29,6 +29,7 @@ namespace Server
         */
         public static ByteBuffer GetUserOnlineStatusBufferByID(string _friendPlayFabID)
         {
+            Console.WriteLine("Getting Users Online Status...");
             bool _status = false;
             string _playFabNetworkID = "";
             ByteBuffer _buffer = new ByteBuffer();
@@ -41,8 +42,8 @@ namespace Server
                     break;
                 }
             }
-            _buffer.WriteInt((int)ServerPackets.HandShake);
-            _buffer.WriteBool(true); // This tells the client it's a response. TODO: Change into an int to be able to filter more responses.
+            _buffer.WriteInt((int)ServerPackets.UserInfoRequest);
+            //_buffer.WriteBool(true); // This tells the client it's a response. TODO: Change into an int to be able to filter more responses.
             _buffer.WriteBool(_status); // Tells our client the status of the user.
             _buffer.WriteString(_friendPlayFabID);
             if (_status == true) // If the user is online, pass along the user's network ID. TODO: Change into a request for communication to the user.
