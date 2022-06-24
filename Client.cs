@@ -45,7 +45,7 @@ namespace Server
             stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
                 ReceivedData, null);
             player = new Player(userID);
-            ServerSend.Welcome(userID, "Welcome to the server!");
+            ServerSend.Welcome(userID, "Connected to Metagamez.net service.");
         }
 
         private void ReceivedData(IAsyncResult _result)
