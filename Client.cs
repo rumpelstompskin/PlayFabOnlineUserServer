@@ -22,6 +22,7 @@ namespace Server
     {
         public int userID;
         public bool isOnline = false;
+        public bool authorized = false;
 
         public string playFabId;
         public string playFabNetworkId;
@@ -45,7 +46,8 @@ namespace Server
             stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
                 ReceivedData, null);
             player = new Player(userID);
-            ServerSend.Welcome(userID, "Connected to Metagamez.net service.");
+            ServerSend.ServerCredentialRequest(userID);
+            //ServerSend.Welcome(userID, "Connected to Metagamez.net service.");
         }
 
         private void ReceivedData(IAsyncResult _result)
@@ -60,6 +62,7 @@ namespace Server
                 Array.Copy(receiveBuffer, _tempBuffer, _byteLenght);
 
                 ServerHandle.HandleData(userID, _tempBuffer);
+                if(socket != null)
                 stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
                     ReceivedData, null);
             }
@@ -71,14 +74,14 @@ namespace Server
             }
         }
 
-        private void CloseConnection()
+        public void CloseConnection()
         {
             Console.WriteLine(
                 $"Connection from {socket.Client.RemoteEndPoint} has been terminated");
 
             player = null;
             isOnline = false;
-
+            authorized = false;
             socket.Close();
             socket = null;
 

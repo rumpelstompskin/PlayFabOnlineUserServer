@@ -147,6 +147,14 @@ namespace Server
 
             _buffer.Dispose();
         }
+
+        public static void ServerCredentialRequest(int _sendToUser)
+        {
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteInt((int)ServerPackets.AuthorizeClient);
+            SendDataTo(_sendToUser, _buffer.ToArray());
+            _buffer.Dispose();
+        }
     }
 
     class ServerHandle
@@ -161,6 +169,7 @@ namespace Server
             {
                 {(int)ClientPackets.HandShakeReceived, HandShakeReceived },
                 {(int)ClientPackets.UserInfoRequestReceived,  UserInfoRequestReceived },
+                {(int)ClientPackets.AuthorizeClientReceived, AuthorizationRequestReceived }
             };
         }
         /// <summary>
@@ -196,12 +205,36 @@ namespace Server
             _buffer.WriteBytes(_data); // Taking incoming data and converting it into readable format.
             _buffer.ReadInt();
 
-            Console.WriteLine("Returned true, requesting client information");
+            //Console.WriteLine("Client information request received.");
             string _friendPlayFabID = _buffer.ReadString();
 
             Console.WriteLine($"Requesting information about user: {_friendPlayFabID}");
             // Call method to gather information with friend PlayFabID
             ServerSend.ServerReturnUserStatus(_userID, _friendPlayFabID);
+            _buffer.Dispose();
+        }
+
+        public static void AuthorizationRequestReceived(int _userID, byte[] _data)
+        {
+            if(Globals.clients[_userID].authorized == true) 
+            { 
+                return; 
+            }
+            string phrase;
+            string answer = "Authorization Test Key";
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteBytes(_data);
+            _buffer.ReadInt();
+
+            phrase = _buffer.ReadString();
+            if(phrase == answer)
+            {
+                Globals.clients[_userID].authorized = true;
+                ServerSend.Welcome(_userID, "Connected to Metagamez.net service.");
+            } else
+            {
+                Globals.clients[_userID].CloseConnection();
+            }
             _buffer.Dispose();
         }
 
@@ -271,6 +304,9 @@ namespace Server
             if(packets.TryGetValue(_packetID, out Packet? _packet))
             {
                 _packet.Invoke(_userID, _data);
+            } else
+            {
+                Console.WriteLine("Invalid Packet");
             }
         }
     }
