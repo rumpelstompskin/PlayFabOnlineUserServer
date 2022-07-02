@@ -115,7 +115,7 @@ namespace Server
                     _buffer.WriteInt(_data.GetUpperBound(0) - _data.GetLowerBound(0) + 1);
                     _buffer.WriteBytes(_data);
 
-                    Globals.clients[_userID].stream.BeginWrite(_buffer.ToArray(), 0,
+                    Globals.clients[_userID].sslStream.BeginWrite(_buffer.ToArray(), 0,
                         _buffer.ToArray().Length, f => { Console.WriteLine("Sending Data..."); }, null);
                     _buffer.Dispose();
                 }

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Server
 {
@@ -30,6 +32,7 @@ namespace Server
 
         public TcpClient socket;
         public NetworkStream stream;
+        public SslStream sslStream;
 
         public ByteBuffer buffer;
         public Player player;
@@ -40,10 +43,22 @@ namespace Server
         {
             socket.ReceiveBufferSize = 4096;
             socket.SendBufferSize = 4096;
+            socket.ReceiveTimeout = 5000;
 
             stream = socket.GetStream();
+            sslStream = new SslStream(stream, false);
+
+            var certificate = new X509Certificate2("c:/mypfx.pfx", "1234");
+
+            if(certificate != null) { Console.WriteLine(certificate.ToString()); }
+
+            sslStream.AuthenticateAsServer(certificate,
+                false,
+                System.Security.Authentication.SslProtocols.Tls11,
+                false);
+
             receiveBuffer = new byte[socket.ReceiveBufferSize];
-            stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
+            sslStream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
                 ReceivedData, null);
             player = new Player(userID);
             ServerSend.ServerCredentialRequest(userID);
@@ -55,7 +70,7 @@ namespace Server
             try
             {
                 Console.WriteLine("Received Data...");
-                int _byteLenght = stream.EndRead(_result);
+                int _byteLenght = sslStream.EndRead(_result);
                 if(_byteLenght <= 0) { CloseConnection(); return; }
 
                 byte[] _tempBuffer = new byte[_byteLenght];
@@ -63,7 +78,7 @@ namespace Server
 
                 ServerHandle.HandleData(userID, _tempBuffer);
                 if(socket != null)
-                stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
+                sslStream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
                     ReceivedData, null);
             }
             catch (Exception _ex)
@@ -78,7 +93,7 @@ namespace Server
         {
             Console.WriteLine(
                 $"Connection from {socket.Client.RemoteEndPoint} has been terminated");
-
+            sslStream.Close();
             player = null;
             isOnline = false;
             authorized = false;
