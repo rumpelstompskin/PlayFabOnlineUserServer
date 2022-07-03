@@ -5,6 +5,9 @@ using System.Net.Sockets;
 
 namespace Server
 {
+    /// <summary>
+    /// Metagamez.net Online Status Service
+    /// </summary>
     class Program
     {
         static void Main(string[] args) // Program's initial method call.
@@ -221,7 +224,7 @@ namespace Server
                 return; 
             }
             string phrase;
-            string answer = "Authorization Test Key";
+            string answer = "Authorization Test Key"; // TODO Change me
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteBytes(_data);
             _buffer.ReadInt();

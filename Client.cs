@@ -48,7 +48,7 @@ namespace Server
             stream = socket.GetStream();
             sslStream = new SslStream(stream, false);
 
-            var certificate = new X509Certificate2("c:/mypfx.pfx", "1234"); // TODO Change to proper path, change certificate
+            var certificate = new X509Certificate2("server.pfx", "1234"); // TODO Change to proper path, change certificate
 
             //if(certificate != null) { Console.WriteLine(certificate.ToString()); }
 

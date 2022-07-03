@@ -12,8 +12,9 @@ While there are solutions such as SignalR, I decided to go with C# TCP server fr
 
 This server acts as a relay station for your clients to allow for small amounts of data transfer.
 When your players launches your title, their clients handshake this server, tells it that they are now online.
-The server can then be queried by other users for this clients status.
-Information such as PlayFabID and PlayFabNetworkID can also be relayed.
+The server can then be queried by other users for this clients status and/or other information.
+
+Information stored on the server is anonymous and is deleted once the user disconnects.
 
 ## Getting Started
 
@@ -24,11 +25,9 @@ Information such as PlayFabID and PlayFabNetworkID can also be relayed.
 
 ### Installing
 
-* Coming Soon
-
-### Executing program
-
-* Coming Soon
+Navigate to line 51 of Client.cs. Change the password to your certificate's name and password.
+Build the application and place your certificate in the form of a pfx into the solution's base folder.
+Run the application.
 
 ## Help
 
@@ -41,9 +40,13 @@ Rumpelstompskin
 https://www.metagamez.net
 
 ## Version History
+* 0.4
+    * Added SslStream for encrypted communications.
+    * Added very simple authentication using a simple string. To be changed later. Maybe.
+    * Added extra comments and todo's.
 * 0.3
-    * Added UserInfoRequest Packet
-    * Added new packet to InitializePacket
+    * Added UserInfoRequest Packet.
+    * Added new packet to InitializePacket.
     * Added method to receive and return UserInfoRequest packets.
     * Added more comments to code.
 * 0.2
