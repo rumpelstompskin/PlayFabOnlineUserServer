@@ -193,7 +193,7 @@ namespace Server
 
             _buffer.Dispose();
 
-            for (int i = 0; i < Globals.clients.Count; i++)
+            for (int i = 0; i < Globals.clients.Count; i++) // Duplicate playfab id check TODO Is this needed?
             {
                 Globals.clients.TryGetValue(i, out var client);
                 if (client != null)
