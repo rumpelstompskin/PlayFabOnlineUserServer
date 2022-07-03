@@ -193,6 +193,20 @@ namespace Server
 
             _buffer.Dispose();
 
+            for (int i = 0; i < Globals.clients.Count; i++)
+            {
+                Globals.clients.TryGetValue(i, out var client);
+                if (client != null)
+                {
+                    if (client.playFabId == _playFabID)
+                    {
+                        Console.WriteLine("PlayFabID already in use");
+                        Globals.clients[_userID].CloseConnection();
+                        return;
+                    }
+                }
+            }
+
             Console.WriteLine(
                 $"Connection from {Globals.clients[_userID].socket.Client.RemoteEndPoint}" +
                 $" was successful. Username: {_username}. PlayFab ID: {_playFabID}. Network ID: {_playFabNetworkID}");

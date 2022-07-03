@@ -67,10 +67,10 @@ namespace Server
             }
 
 
-            DisplaySecurityLevel(sslStream); // TODO Remove
-            DisplaySecurityServices(sslStream);
-            DisplayCertificateInformation(sslStream);
-            DisplayStreamProperties(sslStream);
+            //DisplaySecurityLevel(sslStream); // TODO Remove
+            //DisplaySecurityServices(sslStream);
+            //DisplayCertificateInformation(sslStream);
+            //DisplayStreamProperties(sslStream);
 
             receiveBuffer = new byte[socket.ReceiveBufferSize];
             sslStream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
@@ -109,6 +109,10 @@ namespace Server
             Console.WriteLine(
                 $"Connection from {socket.Client.RemoteEndPoint} has been terminated");
             sslStream.Close();
+            playFabId = null;
+            playFabDisplayName = null;
+            playFabNetworkId = null;
+            sslStream = null;
             player = null;
             isOnline = false;
             authorized = false;
