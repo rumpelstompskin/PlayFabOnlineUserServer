@@ -25,9 +25,9 @@ Information stored on the server is anonymous and is deleted once the user disco
 
 ### Installing
 
-* Navigate to line 51 of Client.cs. Change the password to your certificate's name and password.
-* Navigate to line 241 of Program.cs. Change authentication password.
-* Build the application and place your certificate in the form of a pfx into the solution's base folder.
+* Navigate to the Constants.cs file.
+* Change the password to your certificate's name and password as well as Change authentication password.
+* Build the application and place your certificate in the form of a pfx into the solution's folder.
 * Run the application.
 
 ## Help

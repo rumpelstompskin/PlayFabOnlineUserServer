@@ -238,7 +238,7 @@ namespace Server
                 return; 
             }
             string phrase;
-            string answer = "Authorization Test Key"; // TODO Change me
+            string answer = Constants.AUTH_PWD; // TODO Change me
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteBytes(_data);
             _buffer.ReadInt();
