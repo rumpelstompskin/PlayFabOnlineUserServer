@@ -25,14 +25,21 @@ Information stored on the server is anonymous and is deleted once the user disco
 
 ### Installing
 
-Navigate to line 51 of Client.cs. Change the password to your certificate's name and password.
-Navigate to line 241 of Program.cs. Change authentication password.
-Build the application and place your certificate in the form of a pfx into the solution's base folder.
-Run the application.
+* Navigate to line 51 of Client.cs. Change the password to your certificate's name and password.
+* Navigate to line 241 of Program.cs. Change authentication password.
+* Build the application and place your certificate in the form of a pfx into the solution's base folder.
+* Run the application.
 
 ## Help
 
-* Coming Soon
+* I can be reached on my discord server.
+* https://discord.gg/nbA8rRR
+
+## TODO
+
+* Logging functionality for fail2ban implementation
+* Friend requesting functinality
+* Clean Up
 
 ## Authors
 
