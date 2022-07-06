@@ -151,6 +151,15 @@ namespace Server
             _buffer.Dispose();
         }
 
+        public static void ServerReturnMultiUsersStatus(int _sendToUser, HashSet<string> allOnlineFriends)
+        {
+            ByteBuffer _buffer = Globals.GetMultiUserOnlineStatusBufferByID(allOnlineFriends);
+
+            SendDataTo(_sendToUser, _buffer.ToArray());
+
+            _buffer.Dispose();
+        }
+
         public static void ServerCredentialRequest(int _sendToUser)
         {
             ByteBuffer _buffer = new ByteBuffer();
@@ -171,7 +180,7 @@ namespace Server
             packets = new Dictionary<int, Packet>()
             {
                 {(int)ClientPackets.HandShakeReceived, HandShakeReceived },
-                {(int)ClientPackets.UserInfoRequestReceived,  UserInfoRequestReceived },
+                {(int)ClientPackets.UserInfoRequestReceived,  MultiUserInforRequestReceived },
                 {(int)ClientPackets.AuthorizeClientReceived, AuthorizationRequestReceived }
             };
         }
@@ -228,6 +237,23 @@ namespace Server
             Console.WriteLine($"Requesting information about user: {_friendPlayFabID}");
             // Call method to gather information with friend PlayFabID
             ServerSend.ServerReturnUserStatus(_userID, _friendPlayFabID);
+            _buffer.Dispose();
+        }
+
+        public static void MultiUserInforRequestReceived(int _userID, byte[] _data)
+        {
+            HashSet<string> allUsersFriends = new HashSet<string>();
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteBytes(_data);
+            _buffer.ReadInt();
+            int count = _buffer.ReadInt();
+
+            for (int i = 0; i < count; i++)
+            {
+                allUsersFriends.Add(_buffer.ReadString());
+            }
+
+            ServerSend.ServerReturnMultiUsersStatus(_userID, allUsersFriends);
             _buffer.Dispose();
         }
 

@@ -38,5 +38,30 @@ namespace Server
 
             return _buffer;
         }
+
+        public static ByteBuffer GetMultiUserOnlineStatusBufferByID(HashSet<string> allUsersFriends)
+        {
+            HashSet<string> friendsCurrentlyOnline = new HashSet<string>(); // Create a hashset to store possitive results
+
+            ByteBuffer _buffer = new ByteBuffer(); // Instantiate new ByteBuffer for transmition
+
+            for (int i = 0; i < clients.Count; i++) // Cycle through all our online clients TODO Find better way to do this
+            {
+                string friendPlayFabID = clients[i].playFabId; // storing our result
+                if (allUsersFriends.Contains(friendPlayFabID)) // Checking if the online user is on our friends list. TODO Find better way to do this
+                {
+                    friendsCurrentlyOnline.Add(friendPlayFabID); // If the online user is on our friends list, add it to our temporary hashset.
+                }
+            }
+
+            _buffer.WriteInt((int)ServerPackets.UserInfoRequest); // What type of packet are we sending?
+            _buffer.WriteInt(friendsCurrentlyOnline.Count); // How many of our friends are online
+            foreach(string online in friendsCurrentlyOnline) // Cycle through our online friends to populate our string
+            {
+                _buffer.WriteString(online); // write the string to the buffer
+            }
+
+            return _buffer; // Return the buffer.
+        }
     }
 }
