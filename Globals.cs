@@ -45,7 +45,7 @@ namespace Server
 
             ByteBuffer _buffer = new ByteBuffer(); // Instantiate new ByteBuffer for transmition
 
-            for (int i = 0; i < clients.Count; i++) // Cycle through all our online clients TODO Find better way to do this
+            for (int i = 1; i < clients.Count; i++) // Cycle through all our online clients TODO Find better way to do this
             {
                 string friendPlayFabID = clients[i].playFabId; // storing our result
                 if (allUsersFriends.Contains(friendPlayFabID)) // Checking if the online user is on our friends list. TODO Find better way to do this
