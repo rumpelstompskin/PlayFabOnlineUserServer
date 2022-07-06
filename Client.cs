@@ -62,7 +62,7 @@ namespace Server
             catch(Exception e)
             {
                 Console.WriteLine(e.ToString());
-                socket.Close();
+                CloseConnection();
                 return;
             }
 
