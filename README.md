@@ -48,6 +48,8 @@ Rumpelstompskin
 https://www.metagamez.net
 
 ## Version History
+* 0.5
+    * Added multi user info request functionality.
 * 0.4
     * Added SslStream for encrypted communications.
     * Added very simple authentication using a simple string. To be changed later. Maybe.
