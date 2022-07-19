@@ -26,6 +26,8 @@ namespace Server
         public bool isOnline = false;
         public bool authorized = false;
 
+        public HashSet<string> allFriendsofuser = new HashSet<string>();
+
         public string playFabId;
         public string playFabNetworkId;
         public string playFabDisplayName;

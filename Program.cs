@@ -119,7 +119,7 @@ namespace Server
                     _buffer.WriteBytes(_data);
 
                     Globals.clients[_userID].sslStream.BeginWrite(_buffer.ToArray(), 0,
-                        _buffer.ToArray().Length, f => { Console.WriteLine($"Sending Data to user {_userID}"); }, null);
+                        _buffer.ToArray().Length, f => { Console.WriteLine($"Sending Data to user {_userID}."); }, null);
                     _buffer.Dispose();
                 }
             }
@@ -167,6 +167,27 @@ namespace Server
             SendDataTo(_sendToUser, _buffer.ToArray());
             _buffer.Dispose();
         }
+
+        public static void ServerSendFriendRequest(int _sendToUser, string _requestingUser, string _requestingUserDisplayName)
+        {
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteInt((int)ServerPackets.FriendRequest);
+            _buffer.WriteString(_requestingUser);
+            _buffer.WriteString(_requestingUserDisplayName);
+            SendDataTo(_sendToUser, _buffer.ToArray());
+            _buffer.Dispose();
+        }
+
+        public static void ServerSendFriendRequestResponse(int _sendToUser, bool _response, string _fromUser, string _fromUserName)
+        {
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteInt((int)ServerPackets.FriendResponse);
+            _buffer.WriteBool(_response);
+            _buffer.WriteString(_fromUser);
+            _buffer.WriteString(_fromUserName);
+            SendDataTo(_sendToUser,_buffer.ToArray());
+            _buffer.Dispose();
+        }
     }
 
     class ServerHandle
@@ -181,7 +202,9 @@ namespace Server
             {
                 {(int)ClientPackets.HandShakeReceived, HandShakeReceived },
                 {(int)ClientPackets.UserInfoRequestReceived,  MultiUserInforRequestReceived },
-                {(int)ClientPackets.AuthorizeClientReceived, AuthorizationRequestReceived }
+                {(int)ClientPackets.AuthorizeClientReceived, AuthorizationRequestReceived },
+                {(int)ClientPackets.FriendsRequestReceived, FriendsRequestReceived },
+                {(int)ClientPackets.FriendRequestResponseReceived, FriendsRequestResponseReceived }
             };
         }
         /// <summary>
@@ -250,7 +273,9 @@ namespace Server
 
             for (int i = 0; i < count; i++)
             {
-                allUsersFriends.Add(_buffer.ReadString());
+                string _friendPlayFabID = _buffer.ReadString();
+                allUsersFriends.Add(_friendPlayFabID);
+                Globals.clients[_userID].allFriendsofuser.Add(_friendPlayFabID);
             }
 
             ServerSend.ServerReturnMultiUsersStatus(_userID, allUsersFriends);
@@ -279,6 +304,50 @@ namespace Server
                 Globals.clients[_userID].CloseConnection();
             }
             _buffer.Dispose();
+        }
+
+        public static void FriendsRequestReceived(int _userID, byte[] _data)
+        {
+            // Server has received a friends request from _userID to be addressed to recipientPlayFabID
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteBytes(_data);
+            _buffer.ReadInt();
+
+            var requestingPlayFabID = _buffer.ReadString();
+
+            for (int i = 1; i < Globals.clients.Count; i++)
+            {
+                if (Globals.clients[i].playFabId == requestingPlayFabID)
+                {
+                    //Console.WriteLine($"{Globals.clients[i].userID} and {Globals.clients[_userID].playFabId}");
+                    ServerSend.ServerSendFriendRequest(Globals.clients[i].userID, Globals.clients[_userID].playFabId, Globals.clients[_userID].playFabDisplayName);
+                    break;
+                }
+            }
+            _buffer.Dispose();
+        }
+
+        public static void FriendsRequestResponseReceived(int _userID, byte[] _data)
+        {
+            // Server has received friends request response from the _userID
+            ByteBuffer _buffer = new ByteBuffer();
+            _buffer.WriteBytes(_data);
+            _buffer.ReadInt();
+
+            bool response = _buffer.ReadBool(); // Response from _userID
+            string recipientUser = _buffer.ReadString(); // User that originaly requested friendship
+            if (response)
+            {
+                // _userID has already added recipient user to playfab, tell recipient to do the same.
+                for (int i = 1; i < Globals.clients.Count; i++) // TODO See if we can pass the current user ID
+                { // to skip this loop to save on compute time?
+                    if (Globals.clients[i].playFabId == recipientUser)
+                    {
+                        ServerSend.ServerSendFriendRequestResponse(i , response, Globals.clients[_userID].playFabId, Globals.clients[_userID].playFabDisplayName);
+                        break;
+                    }
+                }
+            }
         }
 
         public static void HandleData(int _userID, byte[] _data)
