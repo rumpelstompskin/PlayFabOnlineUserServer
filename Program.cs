@@ -313,13 +313,17 @@ namespace Server
             _buffer.WriteBytes(_data);
             _buffer.ReadInt();
 
-            var requestingPlayFabID = _buffer.ReadString();
+            var requestingPlayFabID = _buffer.ReadString(); // Recipient user
 
-            for (int i = 1; i < Globals.clients.Count; i++)
+            for (int i = 1; i < Globals.clients.Count; i++) // TODO Find a way to remove loop.
             {
                 if (Globals.clients[i].playFabId == requestingPlayFabID)
                 {
-                    //Console.WriteLine($"{Globals.clients[i].userID} and {Globals.clients[_userID].playFabId}");
+                    // Check if we are already friends.
+                    if (Globals.clients[i].allFriendsofuser.Contains(Globals.clients[_userID].playFabId))
+                    {
+                        break;
+                    }
                     ServerSend.ServerSendFriendRequest(Globals.clients[i].userID, Globals.clients[_userID].playFabId, Globals.clients[_userID].playFabDisplayName);
                     break;
                 }
