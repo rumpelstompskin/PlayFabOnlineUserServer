@@ -201,7 +201,7 @@ namespace Server
             packets = new Dictionary<int, Packet>()
             {
                 {(int)ClientPackets.HandShakeReceived, HandShakeReceived },
-                {(int)ClientPackets.UserInfoRequestReceived,  MultiUserInforRequestReceived },
+                {(int)ClientPackets.UserInfoRequestReceived,  MultiUserInfoRequestReceived },
                 {(int)ClientPackets.AuthorizeClientReceived, AuthorizationRequestReceived },
                 {(int)ClientPackets.FriendsRequestReceived, FriendsRequestReceived },
                 {(int)ClientPackets.FriendRequestResponseReceived, FriendsRequestResponseReceived }
@@ -263,12 +263,13 @@ namespace Server
             _buffer.Dispose();
         }
 
-        public static void MultiUserInforRequestReceived(int _userID, byte[] _data)
+        public static void MultiUserInfoRequestReceived(int _userID, byte[] _data)
         {
             HashSet<string> allUsersFriends = new HashSet<string>();
             ByteBuffer _buffer = new ByteBuffer();
             _buffer.WriteBytes(_data);
             _buffer.ReadInt();
+
             int count = _buffer.ReadInt();
 
             for (int i = 0; i < count; i++)
@@ -419,6 +420,7 @@ namespace Server
 
             if(packets.TryGetValue(_packetID, out Packet? _packet))
             {
+                Console.WriteLine($"{_userID} has sent packet#{_packetID}");
                 _packet.Invoke(_userID, _data);
             } else
             {

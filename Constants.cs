@@ -10,7 +10,7 @@ namespace Server
     {
         // Server Tick Configuration
         public const int MAX_USERS = 1000;
-        public const int TICKS_PER_SEC = 1;
+        public const int TICKS_PER_SEC = 30;
         public const float MS_PER_TICK = 1000 / TICKS_PER_SEC;
 
         // Server Requirements

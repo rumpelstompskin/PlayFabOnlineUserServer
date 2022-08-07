@@ -8,8 +8,23 @@ namespace Server
 {
     internal class Globals
     {
+        public struct UserData
+        {
+            public string DisplayName;
+            public string PlayFabID;
+
+            public UserData(string displayName, string playFabID)
+            {
+                DisplayName = displayName;
+                PlayFabID = playFabID;
+            }
+        }
+
         public static bool serverIsRunning = false;
         public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
+
+        //public static HashSet<Client> ClientsFastFind = new HashSet<Client>(); TODO Add to replace loop in
+        // GetMultiUserOnlineStatusBufferByID method.
 
         public static ByteBuffer GetUserOnlineStatusBufferByID(string _friendPlayFabID) // TODO: Consider moving this logic out of here.
         {
@@ -41,24 +56,27 @@ namespace Server
 
         public static ByteBuffer GetMultiUserOnlineStatusBufferByID(HashSet<string> allUsersFriends)
         {
-            HashSet<string> friendsCurrentlyOnline = new HashSet<string>(); // Create a hashset to store possitive results
+            HashSet<UserData> friendsCurrentlyOnline = new HashSet<UserData>(); // Create a hashset to store possitive results
 
             ByteBuffer _buffer = new ByteBuffer(); // Instantiate new ByteBuffer for transmition
 
             for (int i = 1; i < clients.Count; i++) // Cycle through all our online clients TODO Find better way to do this
             {
                 string friendPlayFabID = clients[i].playFabId; // storing our result
+                string friendDisplayName = clients[i].playFabDisplayName;
                 if (allUsersFriends.Contains(friendPlayFabID)) // Checking if the online user is on our friends list. TODO Find better way to do this
                 {
-                    friendsCurrentlyOnline.Add(friendPlayFabID); // If the online user is on our friends list, add it to our temporary hashset.
+                    UserData userData = new UserData(friendPlayFabID, friendDisplayName);
+                    friendsCurrentlyOnline.Add(userData); // If the online user is on our friends list, add it to our temporary hashset.
                 }
             }
 
             _buffer.WriteInt((int)ServerPackets.UserInfoRequest); // What type of packet are we sending?
             _buffer.WriteInt(friendsCurrentlyOnline.Count); // How many of our friends are online
-            foreach(string online in friendsCurrentlyOnline) // Cycle through our online friends to populate our string
+            foreach(UserData online in friendsCurrentlyOnline) // Cycle through our online friends to populate our string
             {
-                _buffer.WriteString(online); // write the string to the buffer
+                _buffer.WriteString(online.PlayFabID); // write the string to the buffer
+                _buffer.WriteString(online.DisplayName);
             }
 
             return _buffer; // Return the buffer.

@@ -74,6 +74,9 @@ namespace Server
             //DisplayCertificateInformation(sslStream);
             //DisplayStreamProperties(sslStream);
 
+            sslStream.ReadTimeout = 5000;
+            sslStream.WriteTimeout = 5000;
+
             receiveBuffer = new byte[socket.ReceiveBufferSize];
             sslStream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, 
                 ReceivedData, null);
